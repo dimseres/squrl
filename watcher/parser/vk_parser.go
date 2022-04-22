@@ -21,6 +21,7 @@ var (
 )
 
 type VkParser struct {
+	Urls        *models.UrlQueue
 	Bus         chan models.ChanBus
 	activeUrls  []string
 	waitingUrls []string

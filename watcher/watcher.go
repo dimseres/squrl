@@ -18,13 +18,16 @@ type WatchService struct {
 	Connection *config.RDB
 }
 
+var UrlQueue = models.UrlQueue{}
+
 func (service *WatchService) Start() {
 	rdb := service.Connection.Connection
 	subscriber := rdb.Subscribe(ctx, "send-link")
 	messageBus := make(chan models.ChanBus)
 	redisBus := make(chan string)
 	vkParser := parser.VkParser{
-		Bus: messageBus,
+		Urls: UrlQueue,
+		Bus:  messageBus,
 	}
 
 	go vkParser.StartParser()
