@@ -21,7 +21,7 @@ var (
 )
 
 type VkParser struct {
-	Urls        *models.UrlQueue
+	Urls        *models.PriorityQueue
 	Bus         chan models.ChanBus
 	activeUrls  []string
 	waitingUrls []string
@@ -55,6 +55,10 @@ func (parser *VkParser) AddLink(link string) {
 
 	}
 
+	parser.Urls.Push(&models.Item{
+		Value: link,
+	})
+
 	fmt.Println(data)
 	payload, err := json.Marshal(_payload)
 	err = redis.Connection.Set(ctx, "WATCHER:"+hash, payload, 0).Err()
@@ -66,22 +70,29 @@ func (parser *VkParser) AddLink(link string) {
 
 func (parser *VkParser) StartParser() {
 	for {
-		parser.makeRequests()
-		time.Sleep(time.Second * 1)
+		if parser.Urls != nil {
+			parser.makeRequests()
+			time.Sleep(time.Second * 1)
+		}
 	}
-	//go func() {
-	//
-	//}()
 }
 
 func (parser *VkParser) makeRequests() {
-	links := [5]string{
-		"https://gobyexample.com/waitgroups",
-		"https://any-api.com/?tag=media",
-		"https://api2.binance.com/api/v3/ticker/24hr",
-		"https://dog.ceo/api/breeds/image/random",
-		"https://httpbin.org/get",
-	}
+	links := func() []string {
+		maxLen := 25
+		out := make([]string, 0, maxLen)
+		var selectLen int
+		if parser.Urls.Len() > maxLen {
+			selectLen = 25
+		} else {
+			selectLen = parser.Urls.Len()
+		}
+		for i := 0; i < selectLen; i++ {
+			item := parser.Urls.Pop().(*models.Item)
+			out = append(out, item.Value)
+		}
+		return out
+	}()
 	for _, item := range links {
 		wg.Add(1)
 		go func(url string) {
@@ -93,14 +104,18 @@ func (parser *VkParser) makeRequests() {
 				return
 			}
 			end := time.Now().UnixMilli() - start
-			fmt.Printf("[VK PARSER]: Request Done\t time: %d ms, link: %s\n", end, url)
+			fmt.Printf(">>> [VK PARSER]: Request Done\t time: %d ms, link: %s\n", end, url)
 
 			parser.Bus <- models.ChanBus{
 				Service: "VK Parser",
 				Message: "Request Done",
 				Payload: response.Request.Host,
 			}
+			time.Sleep(time.Second * 2)
 		}(item)
+		parser.Urls.Push(&models.Item{
+			Value: item,
+		})
 	}
 	wg.Wait()
 }

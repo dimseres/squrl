@@ -8,6 +8,7 @@ import (
 	"groupsCrawl/watcher/cmd"
 	"groupsCrawl/watcher/parser"
 	"groupsCrawl/watcher/services/models"
+	"log"
 )
 
 var (
@@ -18,15 +19,13 @@ type WatchService struct {
 	Connection *config.RDB
 }
 
-var UrlQueue = models.UrlQueue{}
-
 func (service *WatchService) Start() {
 	rdb := service.Connection.Connection
 	subscriber := rdb.Subscribe(ctx, "send-link")
 	messageBus := make(chan models.ChanBus)
 	redisBus := make(chan string)
 	vkParser := parser.VkParser{
-		Urls: UrlQueue,
+		Urls: &models.PriorityQueue{},
 		Bus:  messageBus,
 	}
 
@@ -36,7 +35,7 @@ func (service *WatchService) Start() {
 		for {
 			msg, err := subscriber.ReceiveMessage(service.Connection.Cnt)
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
 			redisBus <- msg.Payload
 			formatMessage(msg)

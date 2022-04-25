@@ -35,10 +35,6 @@ func (queue *Queue) makeContainer(prior uint8, value string) Container {
 
 func (queue *Queue) Insert(prior uint8, value string) {
 	container := queue.makeContainer(prior, value)
-	//if queue.Head == nil {
-	//	queue.Head = &container
-	//	return
-	//}
 
 	if queue.Head.Priority < prior {
 		container.Next = queue.Head

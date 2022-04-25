@@ -7,9 +7,20 @@ import (
 )
 
 func TestQueue(t *testing.T) {
-	queue := models.NewQueue()
-	queue.Insert(1, "prior 1")
-	queue.Insert(2, "prior 2")
-	queue.Insert(3, "prior 3")
+	queue := models.PriorityQueue{}
+	queue.Push(&models.Item{
+		Value:    "hello",
+		Priority: 0,
+	})
+	queue.Push(&models.Item{
+		Value:    "hello2",
+		Priority: 0,
+	})
+	queue.Push(&models.Item{
+		Value:    "hello3",
+		Priority: 10,
+	})
 	fmt.Println(queue)
+	value := queue.Pop()
+	fmt.Println(value)
 }
