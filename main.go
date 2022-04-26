@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	"groupsCrawl/api/server"
 	"groupsCrawl/config"
+	"groupsCrawl/config/server"
 	"groupsCrawl/watcher"
 	"log"
 )

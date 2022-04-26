@@ -26,3 +26,5 @@ go.work
 .env
 
 .idea
+
+/storage/qr/*

@@ -1,5 +1,5 @@
 package models
 
 type AddLinkRequest struct {
-	Url string `json:"url"`
+	Url string `form:"url" json:"url" binding:"required"`
 }

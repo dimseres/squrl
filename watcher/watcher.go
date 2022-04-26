@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"groupsCrawl/cmd"
 	"groupsCrawl/config"
-	"groupsCrawl/watcher/cmd"
+	"groupsCrawl/watcher/models"
 	"groupsCrawl/watcher/parser"
-	"groupsCrawl/watcher/services/models"
 	"log"
 )
 

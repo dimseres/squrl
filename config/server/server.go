@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"groupsCrawl/api"
 	"log"
 	"net/http"
 	"time"
@@ -10,6 +11,8 @@ import (
 
 func StartWebServer() {
 	r := gin.Default()
+
+	r.Static("/storage", "./storage")
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -20,7 +23,7 @@ func StartWebServer() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	InitRoutes(r)
+	api.InitRoutes(r)
 	err := http.ListenAndServe("localhost:8000", r)
 	if err != nil {
 		log.Fatal(err)

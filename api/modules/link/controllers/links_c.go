@@ -3,9 +3,11 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"groupsCrawl/api/dto"
 	"groupsCrawl/api/modules/link/models"
 	"groupsCrawl/api/modules/link/services"
 	"log"
+	"net/http"
 )
 
 func UpdateLink(ctx *gin.Context) {
@@ -21,6 +23,15 @@ func UpdateLink(ctx *gin.Context) {
 
 func AddNewLink(ctx *gin.Context) {
 	var body models.AddLinkRequest
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		errorObj := dto.ErrorResponse{
+			Error:   true,
+			Message: err.Error(),
+		}
+		ctx.JSON(http.StatusBadRequest, errorObj)
+		return
+	}
+
 	jsonBytes, err := ctx.GetRawData()
 	if err != nil {
 		log.Fatalln(err)
